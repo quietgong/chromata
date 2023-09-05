@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="chromata.min.js"></script>
+  <title>Document</title>
+</head>
+
+<body>
+  <img style="width: 400px; height: 500px;" src="pic.jpg">
+    <img style="width: 400px; height: 500px;" src="pic.jpg" class="my-image">
+  
+  <script>
+    var imageElement = document.querySelector('.my-image');
+    var defaults = {
+        colorMode: 'color',
+        compositeOperation: 'smooth',
+        iterationLimit: 0,
+        key: 'low',
+        lineWidth: 2,
+        lineMode: 'smooth',
+        origin: ['bottom'],
+        outputSize: 'original',
+        pathFinderCount: 30,
+        speed: 7,
+        turningAngle: Math.PI
+      };
+    var chromata = new Chromata(imageElement, defaults);
+    chromata.start();
+  </script>
+</body>
+
+</html>
