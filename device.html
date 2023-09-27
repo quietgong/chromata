@@ -4,64 +4,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-storage.js"></script>
-  <script src="firebaseConfig.js"></script>
   <script src="chromata.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
   <title>Chromata</title>
 </head>
 
 <body>
   <h1>사진 촬영</h1>
   <input type="file" accept="image/*" capture="camera" id="photoInput">
-  <button id="uploadButton">업로드</button>
-  <div id="result">
-    <img style="width: 300px; height: 300px;" id="chromata-img" src="" alt="">
-  </div>
-  
+  <button id="uploadButton" onclick="handleImageUpload()">업로드</button>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const photoInput = document.getElementById("photoInput");
-      const uploadButton = document.getElementById("uploadButton");
-      const resultDiv = document.getElementById("result");
+    const displayWindow = window.open('display.html', target = "_blank")
+    const photoInput = document.getElementById("photoInput");
+    const uploadButton = document.getElementById("uploadButton");
+    const resultDiv = document.getElementById("result");
 
-      uploadButton.addEventListener("click", function () {
-        const file = photoInput.files[0];
-        if (!file) {
-          alert("사진을 선택해주세요.");
-          return;
-        }
-
-        // 현재 시간을 기반으로 이미지 파일 이름 생성
-        const currentDate = new Date();
-        const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // 월 (0부터 시작하므로 +1 필요)
-        const day = String(currentDate.getDate()).padStart(2, "0"); // 일
-        const hours = String(currentDate.getHours()).padStart(2, "0"); // 시간
-        const minutes = String(currentDate.getMinutes()).padStart(2, "0"); // 분
-        const imageName = `${month}${day}${hours}${minutes}.jpg`;
-        const storageRef = firebase.storage().ref();
-        const imageRef = storageRef.child(imageName);
-        imageRef.put(file)
-          .then(snapshot => {
-            return imageRef.getDownloadURL();
-          })
-          .then(downloadURL => {
-            console.log("다운로드 URL:", downloadURL);  // 이미지 다운로드 URL을 출력
-            const a = document.createElement("a");
-            a.download = imageName
-            a.click()
-            document.getElementById("chromata-img").src = imageName;
-            var imageElement = document.getElementById('chromata-img');
-            var chromata = new Chromata(imageElement);
-            chromata.start();
-          })
-          .catch(error => {
-            // 업로드 실패 시 에러 메시지 표시
-            console.error("이미지 업로드 실패:", error);
-            resultDiv.innerHTML = `업로드 실패: ${error.message}`;
-          });
-      });
-    });
+    async function handleImageUpload() {
+      const file = photoInput.files[0];
+      // 현재 시간을 기반으로 이미지 파일 이름 생성
+      const currentDate = new Date();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // 월 (0부터 시작하므로 +1 필요)
+      const day = String(currentDate.getDate()).padStart(2, "0"); // 일
+      const hours = String(currentDate.getHours()).padStart(2, "0"); // 시간
+      const minutes = String(currentDate.getMinutes()).padStart(2, "0"); // 분
+      const filename = `${month}${hours}${minutes}.jpg`
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        displayWindow.postMessage({ path: reader.result }, '*');
+      }
+      // var formData = new FormData();
+      // formData.append('file', file); // 이미지 파일을 'image' 필드에 추가
+      // formData.append('prefix', 'tmp');
+      // // API 엔드포인트 및 요청 설정
+      // let imgPath;
+      // await axios.post('https://dev-cmsapi.seobuk.kr/v1/file/upload', formData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data', // 멀티파트 형식으로 전송
+      //   },
+      // }).then(function (response) {
+      //   displayWindow.postMessage({ path: imgPath }, '*');
+    }
+    
   </script>
 </body>
 
