@@ -1,46 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="kr">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="button.css" rel="stylesheet" type="text/css">
+  <link href="device.css" rel="stylesheet" type="text/css">
+  <link href="./assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <script src="chromata.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
   <title>Chromata</title>
 </head>
 
 <body>
-  <input id="photo" type="file" accept="image/*" capture="camera" onchange="handleImageUpload()">
+  <div id="container">
+    <div>
+      <video autoplay="true" id="videoElement"></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+    <div>
+      <a style="cursor: pointer;" onclick="handleImageUpload()" title="Button push orange" class="button btnPush btnOrange">
+        <i class="fas fa-camera fa-2x" style="color: #fbf9f9; vertical-align: middle;"></i>
+      </a>
+    </div>
+  </div>
   <script>
-    const displayWindow = window.open('display.html', target = "_blank")
-    const photoInput = document.getElementById("photo");
-    async function handleImageUpload() {
-      const file = photoInput.files[0];
-      // 현재 시간을 기반으로 이미지 파일 이름 생성
-      const currentDate = new Date();
-      const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // 월 (0부터 시작하므로 +1 필요)
-      const day = String(currentDate.getDate()).padStart(2, "0"); // 일
-      const hours = String(currentDate.getHours()).padStart(2, "0"); // 시간
-      const minutes = String(currentDate.getMinutes()).padStart(2, "0"); // 분
-      const filename = `${month}${hours}${minutes}.jpg`
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        displayWindow.postMessage({ path: reader.result }, '*');
-        // var formData = new FormData();
-        // formData.append('file', file); // 이미지 파일을 'image' 필드에 추가
-        // formData.append('prefix', 'tmp');
-        // // API 엔드포인트 및 요청 설정
-        // let imgPath;
-        // await axios.post('https://dev-cmsapi.seobuk.kr/v1/file/upload', formData, {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data', // 멀티파트 형식으로 전송
-        //   },
-        // }).then(function (response) {
-        //   displayWindow.postMessage({ path: reader.result }, '*');
-      }
+    const video = document.querySelector("#videoElement");
+    const canvas = document.querySelector("#canvas");
+    const context = canvas.getContext("2d");
+
+    if (navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+          video.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.log(error.message);
+        });
     }
-    
+    const displayWindow = window.open('display.html', target = "_blank")
+
+    async function handleImageUpload() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const capturedImageURL = canvas.toDataURL('image/png');
+      displayWindow.postMessage({ path: capturedImageURL }, '*');
+    }
+
   </script>
 </body>
 

@@ -1,0 +1,21 @@
+  body {
+    background-color: black;
+  }
+
+  #container {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 800px;
+    height: 600px;
+  }
+
+  #videoElement {
+    width: 800px;
+    height: 600px;
+  }

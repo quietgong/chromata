@@ -1,79 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="kr">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="./assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="display.css" rel="stylesheet" type="text/css">
   <script src="chromata.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
   <title>Display</title>
-  <style type="text/css">
-    body {
-      margin: 0;
-    }
-
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      vertical-align: middle;
-      background-color: black;
-    }
-
-
-    .displayElem {
-      width: 100vw;
-      height: 100vh;
-      opacity: 0;
-      transition: opacity 1s ease;
-      position: fixed;
-    }
-
-    canvas {
-      position: fixed;
-    }
-
-    .displayElem.active {
-      opacity: 1;
-    }
-
-    #timer {
-      position: absolute;
-      top: 10%;
-      left: 10%;
-    }
-
-    i {
-      position: absolute;
-      bottom: 10%;
-      left: 10%;
-    }
-
-    i:hover {
-      cursor: pointer;
-    }
-  </style>
 </head>
 
 <body>
   <div id="showDiv" class="container" style="display: none;">
-    <h3 style="color: white;" id="timer"></h3>
-    <img id="user" src="" class="displayElem active">
-    <i id="capture" onclick="handleCaptureButtonClick()" class="fas fa-camera fa-beat fa-4x btns" style="color: #fbf9f9;"></i>
+    <h1 id="timer" style="color: white;">
+      </h3>
+      <img style="visibility: hidden;" id="user" src="" class="displayElem active">
+      <i id="capture" onclick="capture()" class="fas fa-camera fa-beat fa-4x btns" style="color: #fbf9f9;"></i>
   </div>
-
   <div id="displayDiv" class="container" style="display: block;">
     <video id="bgvid" src="title.mp4" class="displayElem" loop autoplay muted></video>
-    <img id="bg1" class="displayElem" src="image1.jpg">
-    <img id="bg2" class="displayElem" src="image2.jpg">
-    <img id="bg3" class="displayElem" src="image3.jpg">
+    <img style="visibility: hidden;" id="bg1" class="displayElem" src="sunset.jpg">
+    <img style="visibility: hidden;" id="bg2" class="displayElem" src="geometry.jpg">
+    <img style="visibility: hidden;" id="bg3" class="displayElem" src="fractal.jpg">
   </div>
 
   <script>
-    // 화면 캡처, 이메일 발송
-    async function handleCaptureButtonClick() {
+    async function capture() {
       var chromataCanvas = document.getElementById("chromataCanvas");
       var ctx = chromataCanvas.getContext('2d');
       ctx.fillStyle = '#000000'
@@ -125,21 +78,30 @@
     const bg3 = document.getElementById('bg3');
     const chromataCanvas = document.getElementById('chromataCanvas');
     const captureButton = document.getElementById("capture");
-
     let currentIndex = 0;
     let userChromata;
     let displayChromata;
     let displayArray = [video, bg1, bg2, bg3];
     let displayChromataEndInterval;
-
-    const displayTime = 10*1000 // 크로마타 이미지 출력 시간
-    const beforeChromataTime = 3*1000 // 크로마타 대상 이미지 출력 시간
-    const remainTime = 5 // 출력 잔여 시간
-    let time = beforeChromataTime + displayTime;
-
+    const displayTime = 30 // 크로마타 이미지 출력 시간
+    const remainTime = 10 // 출력 잔여 시간
+    let time = displayTime;
+  </script>
+  <script>
     showItem(currentIndex);
+    showDisplay();
+
+    function showDisplay() {
+      displayChromataEndInterval = setInterval(() => {
+        if (currentIndex !== 0)
+          displayChromata.reset();
+        showItem((currentIndex + 1) % displayArray.length);
+      }, displayTime * 1000);
+    }
 
     window.addEventListener('message', function (event) {
+      if (currentIndex !== 0 && displayChromata)
+        displayChromata.reset();
       clearInterval(displayChromataEndInterval);
       switchMode();
       userPic.src = event.data.path;
@@ -150,19 +112,16 @@
         if (time <= remainTime)
           timer.innerHTML = time
       }, 1000); // 5초마다 타이머를 출력
-
+      userChromata.start();
       setTimeout(() => {
-        userChromata.start();
-        setTimeout(() => {
-          userChromata.reset();
-          switchMode();
-          showItem(0);
-          time = beforeChromataTime + displayTime;
-          clearInterval(timerInterval); // 타이머 삭제
-        }, displayTime); // 10초 후에 크로마타 애니메이션 종료 및 모드 전환
-      }, beforeChromataTime); // 3초 후에 크로마타 애니메이션 시작
+        switchMode();
+        userChromata.reset();
+        clearInterval(timerInterval); // 타이머 삭제
+        time = displayTime;
+        showItem(currentIndex);
+        showDisplay();
+      }, displayTime * 1000); // 10초 후에 크로마타 애니메이션 종료 및 모드 전환
     });
-
 
     function switchMode() {
       showDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
@@ -170,20 +129,16 @@
     }
 
     function showItem(index) {
+
       displayArray.forEach((elem, i) => {
         i === index ? elem.classList.add('active') : elem.classList.remove('active');
       });
+
       currentIndex = index;
       if (currentIndex !== 0) {
-        displayChromata.reset();
         displayChromata = new Chromata(displayArray[currentIndex]);
-        setTimeout(() => {
-          displayChromata.start();
-        }, beforeChromataTime); // 3초 대신 5초로 변경
+        displayChromata.start();
       }
-      displayChromataEndInterval = setInterval(() => {
-        showItem((currentIndex + 1) % displayArray.length);
-      }, displayTime);
     }
   </script>
 </body>
