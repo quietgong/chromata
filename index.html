@@ -41,6 +41,7 @@
     const displayWindow = window.open('display.html', target = "_blank")
 
     async function handleImageUpload() {
+      alert("촬영이 완료되었습니다.")
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
