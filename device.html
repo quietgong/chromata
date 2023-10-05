@@ -10,15 +10,10 @@
 </head>
 
 <body>
-  <h1>사진 촬영</h1>
-  <input type="file" accept="image/*" capture="camera" id="photoInput">
-  <button id="uploadButton" onclick="handleImageUpload()">업로드</button>
+  <input id="photo" type="file" accept="image/*" capture="camera" onchange="handleImageUpload()">
   <script>
     const displayWindow = window.open('display.html', target = "_blank")
-    const photoInput = document.getElementById("photoInput");
-    const uploadButton = document.getElementById("uploadButton");
-    const resultDiv = document.getElementById("result");
-
+    const photoInput = document.getElementById("photo");
     async function handleImageUpload() {
       const file = photoInput.files[0];
       // 현재 시간을 기반으로 이미지 파일 이름 생성
@@ -32,18 +27,18 @@
       reader.readAsDataURL(file);
       reader.onload = () => {
         displayWindow.postMessage({ path: reader.result }, '*');
+        // var formData = new FormData();
+        // formData.append('file', file); // 이미지 파일을 'image' 필드에 추가
+        // formData.append('prefix', 'tmp');
+        // // API 엔드포인트 및 요청 설정
+        // let imgPath;
+        // await axios.post('https://dev-cmsapi.seobuk.kr/v1/file/upload', formData, {
+        //   headers: {
+        //     'Content-Type': 'multipart/form-data', // 멀티파트 형식으로 전송
+        //   },
+        // }).then(function (response) {
+        //   displayWindow.postMessage({ path: reader.result }, '*');
       }
-      // var formData = new FormData();
-      // formData.append('file', file); // 이미지 파일을 'image' 필드에 추가
-      // formData.append('prefix', 'tmp');
-      // // API 엔드포인트 및 요청 설정
-      // let imgPath;
-      // await axios.post('https://dev-cmsapi.seobuk.kr/v1/file/upload', formData, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data', // 멀티파트 형식으로 전송
-      //   },
-      // }).then(function (response) {
-      //   displayWindow.postMessage({ path: imgPath }, '*');
     }
     
   </script>
