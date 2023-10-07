@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1 id="timer"></h1>
+  <script>
+    function getTimeStringSeconds(seconds) {
+      var hour, min, sec
+      hour = parseInt(seconds / 3600);
+      min = parseInt((seconds % 3600) / 60);
+      sec = seconds % 60;
+      if (min.toString().length == 1) min = "0" + min;
+      if (sec.toString().length == 1) sec = "0" + sec;
+      if(seconds<60){
+        return sec;
+      }
+      else{
+        return min + "분 " + sec;
+      }
+    }
+
+    const timer = document.getElementById("timer");
+    let time = 62;
+
+    let timerInterval = setInterval(() => {
+      time--;
+      timer.innerHTML = getTimeStringSeconds(time) + "초 후에 종료됩니다."
+    }, 1000); // 5초마다 타이머를 출력
+  </script>
+</body>
+</html>

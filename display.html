@@ -13,10 +13,9 @@
 
 <body>
   <div id="showDiv" class="container" style="display: none;">
-    <h1 id="timer" style="color: white;">
-      </h3>
-      <img style="visibility: hidden;" id="user" src="" class="displayElem active">
-      <i id="capture" onclick="capture()" class="fas fa-camera fa-beat fa-4x btns" style="color: #fbf9f9;"></i>
+    <h1 id="timer" style="color: white;"></h1>
+    <img style="visibility: hidden;" id="user" src="" class="displayElem active">
+    <i id="capture" onclick="capture()" class="fas fa-camera fa-beat fa-4x btns" style="color: #fbf9f9;"></i>
   </div>
   <div id="displayDiv" class="container" style="display: block;">
     <video id="bgvid" src="title.mp4" class="displayElem" loop autoplay muted></video>
@@ -53,19 +52,25 @@
         imgPath = response.data.content.files[0].path
       })
       let email = prompt("이미지를 받을 이메일주소 입력");
-      await axios({
-        method: "post",
-        url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
-        data: {
-          "to": email,
-          "src": imgPath
-        },
-        headers: {
-          'Content-Type': 'application/json', // 멀티파트 형식으로 전송
-        }
-      }).then(() => {
-        alert("메일을 확인해주세요!")
-      })
+      let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
+      if (email != null && regex.test(email)) {
+        await axios({
+          method: "post",
+          url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
+          data: {
+            "to": email,
+            "src": imgPath
+          },
+          headers: {
+            'Content-Type': 'application/json', // 멀티파트 형식으로 전송
+          }
+        }).then(() => {
+          alert("메일을 확인해주세요!")
+        })
+      }
+      else if (email != null && !regex.test(email)) {
+        alert("올바른 메일형식이 아닙니다! 다시 입력해주세요.")
+      }
     }
 
     const showDiv = document.getElementById("showDiv");
@@ -81,15 +86,31 @@
     let currentIndex = 0;
     let userChromata;
     let displayChromata;
+    let captureCnt = 0;
     let displayArray = [video, bg1, bg2, bg3];
     let displayChromataEndInterval;
-    const displayTime = 30 // 크로마타 이미지 출력 시간
-    const remainTime = 10 // 출력 잔여 시간
+    const displayTime = 300 // 크로마타 이미지 출력 시간
     let time = displayTime;
+    let userChromataFinished = true;
   </script>
   <script>
     showItem(currentIndex);
     showDisplay();
+
+    function getTimeStringSeconds(seconds) {
+      var hour, min, sec
+      hour = parseInt(seconds / 3600);
+      min = parseInt((seconds % 3600) / 60);
+      sec = seconds % 60;
+      if (min.toString().length == 1) min = "0" + min;
+      if (sec.toString().length == 1) sec = "0" + sec;
+      if (seconds < 60) {
+        return sec;
+      }
+      else {
+        return min + "분 " + sec;
+      }
+    }
 
     function showDisplay() {
       displayChromataEndInterval = setInterval(() => {
@@ -100,27 +121,53 @@
     }
 
     window.addEventListener('message', function (event) {
+      
+      time = displayTime;
+      captureCnt++;
+      let lineWidth = event.data.lineWidth;
+      let speed = event.data.speed;
+      let backgroundColor = event.data.backgroundColor;
+      let imgIdx = (captureCnt) % 3 + 1; // 1,2,3
+      displayArray[imgIdx].src = event.data.path
+      document.getElementById("showDiv").style.backgroundColor = backgroundColor
       if (currentIndex !== 0 && displayChromata)
         displayChromata.reset();
-      clearInterval(displayChromataEndInterval);
-      switchMode();
+      if(userChromataFinished){
+        clearInterval(displayChromataEndInterval);
+        switchMode();
+      }
+      else{
+        userChromata.reset();
+      }
+      userChromataFinished = false
       userPic.src = event.data.path;
-      userChromata = new Chromata(userPic);
-      // 5초가 남았을 때 간격으로 타이머를 표시하고자 함
+      var defaults = {
+        colorMode: 'color',
+        compositeOperation: 'lighten',
+        iterationLimit: 0,
+        key: 'low',
+        lineWidth: lineWidth,
+        lineMode: 'smooth',
+        origin: ['bottom'],
+        outputSize: 'original',
+        pathFinderCount: 30,
+        speed: speed,
+        turningAngle: Math.PI
+      };
+      userChromata = new Chromata(userPic, defaults);
       let timerInterval = setInterval(() => {
         time--;
-        if (time <= remainTime)
-          timer.innerHTML = time
-      }, 1000); // 5초마다 타이머를 출력
+        timer.innerHTML = getTimeStringSeconds(time) + "초 후 종료"
+      }, 1000);
       userChromata.start();
       setTimeout(() => {
+        userChromataFinished = true
         switchMode();
         userChromata.reset();
         clearInterval(timerInterval); // 타이머 삭제
-        time = displayTime;
         showItem(currentIndex);
         showDisplay();
-      }, displayTime * 1000); // 10초 후에 크로마타 애니메이션 종료 및 모드 전환
+      }, displayTime * 1000);
     });
 
     function switchMode() {
@@ -129,11 +176,9 @@
     }
 
     function showItem(index) {
-
       displayArray.forEach((elem, i) => {
         i === index ? elem.classList.add('active') : elem.classList.remove('active');
       });
-
       currentIndex = index;
       if (currentIndex !== 0) {
         displayChromata = new Chromata(displayArray[currentIndex]);
