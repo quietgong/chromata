@@ -1,0 +1,66 @@
+  body {
+    background-color: black;
+  }
+
+  #select {
+    top: 50%;
+    right: 0%;
+    position: absolute;
+    transform: translate(-20%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 20vw;
+    height: 80vh;
+  }
+
+  #container {
+    top: 50%;
+    left: 40%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 80vw;
+    height: 80vh;
+  }
+
+  #videoElement {
+    width: 80vw;
+    height: 80vh;
+  }
+
+  #speedValue {
+    text-align: center;
+    font-size: 18px;
+    
+    padding: 10px 0px;
+    color: #fff;
+  }
+
+  #lineWidthValue {
+    text-align: center;
+    font-size: 18px;
+    
+    padding: 10px 0px;
+    color: #fff;
+  }
+
+  .optionLabel {
+    text-align: center;
+    font-size: 18px;
+    display: block;
+    padding: 10px 0px;
+    color: #fff;
+  }
+
+  .slider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
