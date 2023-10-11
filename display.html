@@ -135,7 +135,7 @@
       hour = parseInt(seconds / 3600);
       min = parseInt((seconds % 3600) / 60);
       sec = seconds % 60;
-      if (min.toString().length == 1) min = "0" + min;
+      if (min.toString().length == 1) min = min;
       if (sec.toString().length == 1) sec = "0" + sec;
       return seconds < 60 ? sec : min + "분 " + sec;
     }
