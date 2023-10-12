@@ -4,93 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link href="./css/display.css" rel="stylesheet" type="text/css">
-  <script src="./js/chromata.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-  <title>Display</title>
+  <link href="assets/css/display.css" rel="stylesheet" type="text/css">
+  <script src="assets/js/chromata.min.js"></script>
+  <title>크로마토그래피</title>
 </head>
 
 <body>
   <div id="showDiv" class="container" style="display: none;">
-    <h1 id="timer" style="color: rgb(236, 114, 114);"></h1>
     <img style="visibility: hidden;" id="user" src="" class="displayElem active">
-    <i id="capture" onclick="capture()" class="fas fa-camera fa-beat fa-4x btns" style="color: #fbf9f9;"></i>
   </div>
   <div id="displayDiv" class="container" style="display: block;">
-    <img id="poster" class="displayElem" src="./img/poster.jpg">
-    <img style="visibility: hidden;" id="bg1" class="displayElem" src="./img/sunset.jpg">
-    <img style="visibility: hidden;" id="bg2" class="displayElem" src="./img/geometry.jpg">
-    <img style="visibility: hidden;" id="bg3" class="displayElem" src="./img/fractal.jpg">
+    <img id="poster" class="displayElem" src="assets/img/poster.jpg">
+    <img style="visibility: hidden;" id="bg1" class="displayElem" src="assets/img/fractal.jpg">
+    <img style="visibility: hidden;" id="bg2" class="displayElem" src="assets/img/geometry.jpg">
+    <img style="visibility: hidden;" id="bg3" class="displayElem" src="assets/img/sunset.jpg">
   </div>
 
   <script>
     function switchMode() {
       showDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
       displayDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
-    }
-
-    async function capture() {
-      clearTimeout(userChromataTimeOut);
-      let chromataCanvas = document.getElementById("chromataCanvas");
-      let ctx = chromataCanvas.getContext('2d');
-      ctx.fillStyle = currentBackGroundColor
-      ctx.fillRect(0, 0, chromataCanvas.width, chromataCanvas.height);
-      let dataURL = chromataCanvas.toDataURL('image/png')
-      let fileName = 'your_chromata.png'
-      let arr = dataURL.split(',');
-      let mime = arr[0].match(/:(.*?);/)[1];
-      let bstr = atob(arr[1]);
-      let n = bstr.length;
-      let u8arr = new Uint8Array(n);
-      while (n--)
-        u8arr[n] = bstr.charCodeAt(n);
-      let imageFile = new File([u8arr], fileName, { type: mime });
-      let formData = new FormData();
-      let imgPath;
-      formData.append('file', imageFile);
-      formData.append('prefix', 'tmp');
-      await axios.post('https://dev-cmsapi.seobuk.kr/v1/file/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // 멀티파트 형식으로 전송
-        },
-      }).then(function (response) {
-        imgPath = response.data.content.files[0].path
-      })
-      let email = prompt("이미지를 받을 이메일주소 입력");
-      let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
-      if (email != null && regex.test(email)) {
-        await axios({
-          method: "post",
-          url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
-          data: {
-            "to": email,
-            "src": imgPath
-          },
-          headers: {
-            'Content-Type': 'application/json', // 멀티파트 형식으로 전송
-          }
-        }).then(() => {
-          alert("메일을 보냈습니다.")
-        })
-      }
-      else if (email != null && !regex.test(email)) {
-        alert("올바른 메일형식이 아닙니다! 다시 입력해주세요.")
-      }
-      displayChromataEndInterval = setInterval(() => {
-        if (currentIndex !== 0)
-          displayChromata.reset();
-        showItem((currentIndex + 1) % displayArray.length);
-      }, displayTime * 1000);
-
-      userChromataTimeOut = setTimeout(() => {
-        switchMode();
-        userChromata.reset();
-        clearInterval(userChromataTimer);
-        showItem(currentIndex);
-        showDisplay();
-        userChromataFinished = true
-      }, (time - 1) * 1000);
     }
 
     const showDiv = document.getElementById("showDiv");
@@ -124,21 +57,10 @@
     const displayTime = 300 // 크로마타 이미지 출력 시간 (초)
     let time = displayTime;
     let userChromataFinished = true;
-    let userChromataTimer;
     let userChromataTimeOut;
 
     showItem(currentIndex);
     showDisplay();
-
-    function getTimeStringSeconds(seconds) {
-      let hour, min, sec
-      hour = parseInt(seconds / 3600);
-      min = parseInt((seconds % 3600) / 60);
-      sec = seconds % 60;
-      if (min.toString().length == 1) min = min;
-      if (sec.toString().length == 1) sec = "0" + sec;
-      return seconds < 60 ? sec : min + "분 " + sec;
-    }
 
     function showDisplay() {
       displayChromataEndInterval = setInterval(() => {
@@ -161,12 +83,22 @@
     }
 
     window.addEventListener('message', function (event) {
+      if (event.data === 'requestCanvas') {
+        let chromataCanvas = document.getElementById("chromataCanvas");
+        let ctx = chromataCanvas.getContext('2d');
+        ctx.fillStyle = currentBackGroundColor
+        ctx.fillRect(0, 0, chromataCanvas.width, chromataCanvas.height);
+        let dataURL = chromataCanvas.toDataURL('image/png')
+        opener.postMessage({
+          "currentChromata": dataURL
+        }, '*')
+        return;
+      }
       let imgIdx = captureCnt % 3 + 1; // 1,2,3
       captureCnt++; // 적용되는 display 배열의 idx
       // 이전 크로마타가 완전히 끝나지 않았다면
       if (!userChromataFinished) {
         userChromata.reset(); // 이전 크로마타는 삭제
-        clearInterval(userChromataTimer) // 이전 크로마타의 타이머 삭제
         clearTimeout(userChromataTimeOut) // 이전 크로마타의 종료 타이머 삭제
       }
       // 이전 크로마타가 완전히 끝났었다면
@@ -176,12 +108,6 @@
         if (currentIndex !== 0 || displayChromata)
           displayChromata.reset(); // 화면보호기용 크로마타 리셋
       }
-
-      time = displayTime;
-      userChromataTimer = setInterval(() => {
-        time--;
-        timer.innerHTML = getTimeStringSeconds(time) + "초 후 종료"
-      }, 1000);
 
       userPic.src = event.data.path;
       currentBackGroundColor = event.data.backgroundColor;
@@ -213,8 +139,7 @@
       userChromataTimeOut = setTimeout(() => {
         switchMode();
         userChromata.reset();
-        clearInterval(userChromataTimer);
-        showItem(currentIndex);
+        showItem(0);
         showDisplay();
         userChromataFinished = true
       }, displayTime * 1000);

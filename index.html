@@ -4,62 +4,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./css/button.css" rel="stylesheet" type="text/css">
-  <link href="./css/index.css" rel="stylesheet" type="text/css">
-  <link href="./css/modal.css" rel="stylesheet" type="text/css">
-  <link href="./assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <script src=".js/chromata.min.js"></script>
-  <script src="./js/modal.js"></script>
+  <title>크로마토그래피</title>
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
+  <script src="assets/js/chromata.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-  <title>Chromata</title>
+  <!-- 부트스트랩 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+    crossorigin="anonymous"></script>
 </head>
+<style>
+  input[type=range] {
+    width: 50%;
+  }
 
-<body>
-  <div id="select">
-    <h1 style="color: #fbf9f9;">애니메이션 설정</h1>
-    <div class="option">
-      <div class="slider">
-        <p class="optionLabel">선 굵기</span>
-          <input id="lineWidth" type="range" min="1" max="5" step="1" value="2" onchange="lineWidthValue.value=value" />
-          <output id="lineWidthValue">2</output>
+  input[type=color] {
+    width: 50%;
+  }
+
+  label {
+    color: aliceblue;
+    font-size: 1.4em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  output {
+    color: aliceblue;
+    font-size: 1.4em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+</style>
+<body style="background-color: black;">
+  <!-- 메일 전송 성공 모달 -->
+  <div class="modal fade" id="mailSuccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>메일을 전송했습니다! 👍</h3>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
+        </div>
       </div>
-      <div class="slider">
-        <p class="optionLabel">스피드</span>
-          <input id="speed" type="range" min="1" max="20" step="1" value="10" onchange="speedValue.value=value" />
-          <output id="speedValue">10</output>
+    </div>
+  </div>
+  <!-- 메일 전송 실패 모달 -->
+  <div class="modal fade" id="mailFailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>잘못된 메일을 입력했습니다! 🥲</h3>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
+        </div>
       </div>
-      <div class="slider">
-        <p class="optionLabel">배경색</span>
-          <input id="backgroundColor" type="color" value="#000000" />
+    </div>
+  </div>
+  <!-- 촬영 후 안내 모달 -->
+  <div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">크로마토그래피</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>촬영 완료!</h3>
+          <ul>
+            <li>
+              촬영된 사진의 크로마토그래피 애니메이션은 5분동안 출력됩니다.
+            </li>
+            <li>
+              하단의 메일 버튼을 누르면 이메일로 크로마토그래피 애니메이션의 순간의 이미지를 메일로 보내드립니다.
+            </li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
+        </div>
       </div>
-      <br>
-      <div class="slider">
-        <button style="width: 100px; height: 50px; cursor: pointer;" onclick="handleImageUpload()"
-          class="button btnPush btnOrange">
-          <i class="fas fa-camera fa-3x" style="color: #fbf9f9; vertical-align: middle;"></i>
+    </div>
+  </div>
+  <!-- 매일 전송 모달 -->
+  <div class="modal fade" id="mailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">메일 발송</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <p>이메일을 입력해주세요.</p>
+              <input id="email" type="text" value="" class="form-control" placeholder="ACC@naver.com">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+          <button onclick="sendMail()" type="button" class="btn btn-primary">전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 로고 -->
+  <div id="logo" class="container-fluid">
+    <img src="assets/img/Logo.png" class="mx-auto d-block img-fluid" style="height: 10vw;">
+  </div>
+  <!-- 메인 -->
+  <div class="container-fluid mt-5">
+    <div class="row">
+      <!-- 카메라 화면 -->
+      <div class="col-lg-8">
+        <div class="embed-responsive embed-responsive-16by9">
+          <video class="embed-responsive-item" autoplay="true" id="videoElement"></video>
+          <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+      </div>
+      <!-- 애니메이션 옵션 설정 -->
+      <div id="setting" class="col-lg-4">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 mt-4 d-flex flex-column align-items-center justify-content-center">
+              <label for="lineWidth" class="form-label">선 굵기</label>
+              <input id="lineWidth" class="form-range mb-2" type="range" min="1" max="5" step="1" value="2"
+                onchange="lineWidthValue.value=value" />
+              <output id="lineWidthValue">2</output>
+            </div>
+            <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+              <label for="speed" class="form-label">스피드</label>
+              <input id="speed" class="form-range mb-2" type="range" min="1" max="20" step="1" value="10"
+                onchange="speedValue.value=value" />
+              <output id="speedValue">10</output>
+            </div>
+            <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+              <label for="backgroundColor" class="form-label">애니메이션 배경색</label>
+              <input id="backgroundColor" class="form-control" type="color" value="#000000" />
+            </div>
+            <div class="col-12 mt-5">
+              <img src="assets/img/Btn_Camera.png" class="mx-auto d-block img-fluid"
+                style="cursor: pointer; width: 200px; height: 200px;" data-toggle="modal" data-target="#noticeModal"
+                onclick="takePicture()" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 카운트다운, 메일버튼 -->
+  <div class="container">
+    <div class="row">
+      <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+        <h1 id="timer" style="color: rgb(255, 255, 255); display: none;"></h1>
+        <button id="mailBtn" type="button" onclick="$('#email').val('')" class="btn btn-block"
+          style="color: rgb(255, 255, 255); display: none;" data-toggle="modal" data-target="#mailModal">
+          <span class=" fas fa-3x fa-envelope fa-beat-fade"></span>
         </button>
       </div>
     </div>
   </div>
-  <!-- 모달창 안내 문구 -->
-  <div class="modal" id="myModal">
-    <div class="modal-content">
-      <h3>촬영 완료</h3>
-      <p>촬영된 사진의 크로마토그래피 애니메이션은 5분동안 출력됩니다.</p>
-      <p>좌측 하단의 사진기 버튼을 누르면 이메일로 크로마토그래피 애니메이션의 순간의 이미지를 메일로 보내드립니다</p>
-      <button class="close" id="closeBtn">닫기</button>
-    </div>
-  </div>
 
-  <div id="container">
-    <video autoplay="true" id="videoElement"></video>
-    <canvas id="canvas" style="display:none;"></canvas>
-  </div>
-  </div>
   <script>
     const video = document.querySelector("#videoElement");
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
+    const displayWindow = window.open('display.html', target = "_blank")
+    const displayTime = 300; // 크로마타 이미지 출력 시간 (초)
+    let time = displayTime;
+    let userChromataTimer;
 
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: true })
@@ -70,25 +193,83 @@
           console.log(error.message);
         });
     }
-    const displayWindow = window.open('display.html', target = "_blank")
 
-    async function handleImageUpload() {
-      // 모달 창 열기
-      var modal = document.getElementById('myModal');
-      modal.style.display = 'block';
+    function sendMail() {
+      let email = $("#email").val()
+      let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
+      if(regex.test(email)){
+        $("#mailSuccessModal").modal('show')
+        displayWindow.postMessage('requestCanvas','*');
+      }
+      else{
+        $("#mailFailModal").modal('show');
+      }
+      $("#mailModal").modal('hide');
+    }
 
-      // 닫기 버튼 누르면 모달 창 닫기
-      var closeBtn = document.getElementById('closeBtn');
-      closeBtn.onclick = function () {
-        modal.style.display = 'none';
-      };
+    function terminateUserChromata() {
+      clearInterval(userChromataTimer);
+      $("#timer").hide();
+      $("#mailBtn").hide();
+    }
 
-      var lineWidth = document.getElementById("lineWidth").value;
-      var speed = document.getElementById("speed").value;
-      var backgroundColor = document.getElementById("backgroundColor").value;
+    function showCountDown() {
+      if (userChromataTimer)
+        clearInterval(userChromataTimer);
+      time = displayTime;
+      $("#timer").show();
+      userChromataTimer = setInterval(() => {
+        if (time <= 0) {
+          terminateUserChromata();
+        }
+        else {
+          time--;
+          $("#timer").html(getTimeStringSeconds(time) + "초 후 종료")
+        }
+      }, 1000);
+    }
+
+    function getTimeStringSeconds(seconds) {
+      let hour, min, sec
+      hour = parseInt(seconds / 3600);
+      min = parseInt((seconds % 3600) / 60);
+      sec = seconds % 60;
+      if (min.toString().length == 1) min = min;
+      if (sec.toString().length == 1) sec = sec;
+      return seconds < 60 ? sec : min + "분 " + sec;
+    }
+
+    // 자식 브라우저로부터 크로마타 이미지를 받았을 때
+    window.addEventListener('message', async function (event) {
+      let receivedChromata = event.data.currentChromata;
+      await axios({
+        method: "post",
+        url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
+        data: {
+          "to": $("#email").val(),
+          "src": receivedChromata
+        },
+        headers: {
+          'Content-Type': 'application/json', // 멀티파트 형식으로 전송
+        }
+      }).then(() => {
+        console.log("mail successfully sent")
+      }).catch((err) => {
+        console.log("Error : ", err.message);
+      })
+    })
+
+    function takePicture() {
+      $("#mailBtn").show();
+      showCountDown(); // 카메라 버튼 클릭 시 카운트다운 출력
+      let lineWidth = $("#lineWidth").val();
+      let speed = $("#speed").val();
+      let backgroundColor = $("#backgroundColor").val();
+
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
       const capturedImageURL = canvas.toDataURL('image/png');
       displayWindow.postMessage(
         {
@@ -96,8 +277,9 @@
           lineWidth: lineWidth,
           speed: speed,
           backgroundColor: backgroundColor
-        }, '*');
-    }      
+        }, '*'
+      );
+    }    
   </script>
 </body>
 
