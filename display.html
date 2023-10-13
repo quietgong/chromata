@@ -46,11 +46,11 @@
       key: 'low',
       lineWidth: 2,
       lineMode: 'smooth',
-      origin: ['bottom'],
-      outputSize: 'original',
-      pathFinderCount: 30,
-      speed: 10,
-      turningAngle: Math.PI
+      origin: ["40% 33%", "65% 33%"],
+      outputSize: 'container',
+      pathFinderCount: 40,
+      speed: 15,
+      turningAngle: 3 * Math.PI / 2
     };
     let displayOptionArray = [null, defaults, defaults, defaults]
     let displayBackGroundColor = [null, "#000000", "#000000", "#000000"]
@@ -94,9 +94,9 @@
         opener.postMessage({
           "currentChromata": dataURL
         }, '*')
-        
+
       }
-      else{
+      else {
         let imgIdx = captureCnt % 3 + 1; // 1,2,3
         captureCnt++; // 적용되는 display 배열의 idx
         // 이전 크로마타가 완전히 끝나지 않았다면
@@ -111,16 +111,13 @@
           if (currentIndex !== 0 || displayChromata)
             displayChromata.reset(); // 화면보호기용 크로마타 리셋
         }
-  
+
         userPic.src = event.data.path;
         currentBackGroundColor = event.data.backgroundColor;
         displayBackGroundColor[imgIdx] = event.data.backgroundColor;
         showDiv.style.backgroundColor = currentBackGroundColor;
-  
         displayArray[imgIdx].src = event.data.path;
-        displayOptionArray[imgIdx].lineWidth = event.data.lineWidth;
-        displayOptionArray[imgIdx].speed = event.data.speed;
-  
+
         let userChromataOption = {
           colorMode: 'color',
           compositeOperation: 'lighten',
@@ -128,17 +125,19 @@
           key: 'low',
           lineWidth: event.data.lineWidth,
           lineMode: 'smooth',
-          origin: ['bottom'],
-          outputSize: 'original',
-          pathFinderCount: 30,
+          origin: ["40% 33%", "65% 33%"],
+          outputSize: 'container',
+          pathFinderCount: 40,
           speed: event.data.speed,
-          turningAngle: Math.PI
+          turningAngle: 3 * Math.PI / 2
         };
-  
+
+        displayOptionArray[imgIdx] = userChromataOption
+
         userChromataFinished = false
         userChromata = new Chromata(userPic, userChromataOption);
         userChromata.start();
-  
+
         userChromataTimeOut = setTimeout(() => {
           switchMode();
           userChromata.reset();
