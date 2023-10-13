@@ -153,9 +153,9 @@
           </div>
           <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
             <label for="speed" class="form-label">스피드</label>
-            <input id="speed" class="form-range mb-2" type="range" min="1" max="20" step="1" value="10"
+            <input id="speed" class="form-range mb-2" type="range" min="1" max="20" step="1" value="15"
               onchange="speedValue.value=value" />
-            <output id="speedValue">10</output>
+            <output id="speedValue">15</output>
           </div>
           <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
             <label for="backgroundColor" class="form-label">애니메이션 배경색</label>
@@ -176,7 +176,7 @@
     <div class="row">
       <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
         <h1 id="timer" style="display: none;"></h1>
-        <button id="mailBtn" type="button" onclick="$('#email').val()" class="btn btn-block"
+        <button id="mailBtn" type="button" onclick="$('#email').val('')" class="btn btn-block"
           style="color: rgb(255, 255, 255); display: none;" data-toggle="modal" data-target="#mailModal">
           <span class=" fas fa-3x fa-envelope fa-beat-fade"></span>
         </button>
