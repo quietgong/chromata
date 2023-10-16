@@ -163,8 +163,7 @@
           </div>
           <div class="col-12 mt-5">
             <img src="assets/img/Btn_Camera.png" class="mx-auto d-block img-fluid"
-              style="cursor: pointer; width: 200px; height: 200px; margin-top: 100px;" data-toggle="modal"
-              data-target="#noticeModal" onclick="takePicture()" />
+              style="cursor: pointer; width: 200px; height: 200px; margin-top: 100px;" onclick="takePicture()" />
           </div>
         </div>
       </div>
@@ -174,6 +173,9 @@
   <!-- 카운트다운, 메일버튼 -->
   <div class="container">
     <div class="row">
+      <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+        <h1 id="takePictureCountDown"></h1>
+      </div>
       <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
         <h1 id="timer" style="display: none;"></h1>
         <button id="mailBtn" type="button" onclick="$('#email').val('')" class="btn btn-block"
@@ -292,25 +294,41 @@
     })
 
     function takePicture() {
-      $("#mailBtn").show();
-      showCountDown(); // 카메라 버튼 클릭 시 카운트다운 출력
-      let lineWidth = $("#lineWidth").val();
-      let speed = $("#speed").val();
-      let backgroundColor = $("#backgroundColor").val();
+      let countDown = 5;
+      $("#takePictureCountDown").show();
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      let picCountDown = setInterval(() => {
+        if (countDown <= 0) {
+          clearInterval(picCountDown);
+        } else {
+          countDown--;
+          $("#takePictureCountDown").html(countDown);
+        }
+      }, 1000);
 
-      const capturedImageURL = canvas.toDataURL('image/png');
-      displayWindow.postMessage(
-        {
-          path: capturedImageURL,
-          lineWidth: lineWidth,
-          speed: speed,
-          backgroundColor: backgroundColor
-        }, '*'
-      );
+      setTimeout(() => {
+        $("#takePictureCountDown").hide();
+        $("#noticeModal").modal('show')
+        $("#mailBtn").show();
+        showCountDown(); // 카메라 버튼 클릭 시 카운트다운 출력
+        let lineWidth = $("#lineWidth").val();
+        let speed = $("#speed").val();
+        let backgroundColor = $("#backgroundColor").val();
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const capturedImageURL = canvas.toDataURL('image/png');
+        displayWindow.postMessage(
+          {
+            path: capturedImageURL,
+            lineWidth: lineWidth,
+            speed: speed,
+            backgroundColor: backgroundColor
+          }, '*'
+        );
+      }, 5000);
     }    
   </script>
 </body>
