@@ -45,7 +45,7 @@
       iterationLimit: 0,
       key: 'low',
       lineWidth: 2,
-      lineMode: 'point',
+      lineMode: 'smooth',
       origin: ["bottom, 50% 50%, top"],
       outputSize: 'container',
       pathFinderCount: 60,
@@ -88,7 +88,6 @@
         let chromataCanvas = document.getElementById("chromataCanvas");
         let ctx = chromataCanvas.getContext('2d');
         let imageData = ctx.getImageData(0, 0, chromataCanvas.width, chromataCanvas.height);
-        // 이미지 데이터를 base64 형식으로 변환
         let dataURL = chromataCanvas.toDataURL();
         opener.postMessage({
           "currentChromata": dataURL
@@ -116,6 +115,9 @@
         currentBackGroundColor = event.data.backgroundColor;
         showDiv.style.backgroundColor = currentBackGroundColor;
         let userChromataOption = defaults;
+        //
+        userChromataOption.lineMode = animation_option[imgIdx]
+        //
         userChromataOption.lineWidth = event.data.lineWidth,
         userChromataOption.speed = event.data.speed,
         displayOptionArray[imgIdx] = userChromataOption
