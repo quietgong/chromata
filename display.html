@@ -21,7 +21,7 @@
   </div>
 
   <script>
-    function switchMode() {
+    function switchDisplay() {
       showDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
       displayDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
     }
@@ -45,12 +45,12 @@
       iterationLimit: 0,
       key: 'low',
       lineWidth: 2,
-      lineMode: 'smooth',
-      origin: ["40% 33%", "65% 33%"],
+      lineMode: 'point',
+      origin: ["bottom, 50% 50%, top"],
       outputSize: 'container',
-      pathFinderCount: 40,
-      speed: 15,
-      turningAngle: 3 * Math.PI / 2
+      pathFinderCount: 60,
+      speed: 7,
+      turningAngle: 2 * Math.PI
     };
     let displayOptionArray = [null, defaults, defaults, defaults]
     let displayBackGroundColor = [null, "#000000", "#000000", "#000000"]
@@ -88,13 +88,11 @@
         let chromataCanvas = document.getElementById("chromataCanvas");
         let ctx = chromataCanvas.getContext('2d');
         let imageData = ctx.getImageData(0, 0, chromataCanvas.width, chromataCanvas.height);
-
         // 이미지 데이터를 base64 형식으로 변환
         let dataURL = chromataCanvas.toDataURL();
         opener.postMessage({
           "currentChromata": dataURL
         }, '*')
-
       }
       else {
         let imgIdx = captureCnt % 3 + 1; // 1,2,3
@@ -107,39 +105,25 @@
         // 이전 크로마타가 완전히 끝났었다면
         else {
           clearInterval(displayChromataEndInterval); // 화면보호기 전환 타이머 삭제
-          switchMode(); // 화면 모드 스위칭
+          switchDisplay(); // 화면 모드 스위칭
           if (currentIndex !== 0 || displayChromata)
             displayChromata.reset(); // 화면보호기용 크로마타 리셋
         }
 
         userPic.src = event.data.path;
-        currentBackGroundColor = event.data.backgroundColor;
-        displayBackGroundColor[imgIdx] = event.data.backgroundColor;
-        showDiv.style.backgroundColor = currentBackGroundColor;
         displayArray[imgIdx].src = event.data.path;
-
-        let userChromataOption = {
-          colorMode: 'color',
-          compositeOperation: 'lighten',
-          iterationLimit: 0,
-          key: 'low',
-          lineWidth: event.data.lineWidth,
-          lineMode: 'smooth',
-          origin: ["40% 33%", "65% 33%"],
-          outputSize: 'container',
-          pathFinderCount: 40,
-          speed: event.data.speed,
-          turningAngle: 3 * Math.PI / 2
-        };
-
+        displayBackGroundColor[imgIdx] = event.data.backgroundColor;
+        currentBackGroundColor = event.data.backgroundColor;
+        showDiv.style.backgroundColor = currentBackGroundColor;
+        let userChromataOption = defaults;
+        userChromataOption.lineWidth = event.data.lineWidth,
+        userChromataOption.speed = event.data.speed,
         displayOptionArray[imgIdx] = userChromataOption
-
         userChromataFinished = false
         userChromata = new Chromata(userPic, userChromataOption);
         userChromata.start();
-
         userChromataTimeOut = setTimeout(() => {
-          switchMode();
+          switchDisplay();
           userChromata.reset();
           showItem(0);
           showDisplay();
