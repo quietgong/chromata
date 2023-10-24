@@ -250,6 +250,7 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height); // 전체 캔버스에 배경색을 그림
         ctx.drawImage(imgData, 0, 0);
         dataURL = canvas.toDataURL('image/png');
+        console.log(dataURL)
         await axios({
           method: "post",
           url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
