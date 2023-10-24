@@ -51,8 +51,8 @@
 
   #takePictureCountDown {
     text-align: center;
-    font-size: 100px;
-    color: white;
+    font-size: 300px;
+    color: black;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -100,18 +100,14 @@
               </div>
               <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
                 <h4>촬영된 사진의 크로마토그래피 애니메이션은 3분동안 출력됩니다.</h4>
-              </div>
-              <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
                 <h4>순간의 이미지를 저장하고 싶다면 이메일 주소를 입력하세요.</h4>
               </div>
-              <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-                <form>
-                  <div class="form-group">
-                    <input id="email" type="text" value="" class="form-control" placeholder="이메일을 입력하세요...">
-                    <button id="mailBtn" type="button" onclick="$('#email').val(''); sendMail();" class="btn btn-block"
-                      style="color: rgb(255, 255, 255); display: none;">
-                      <span class=" fas fa-3x fa-envelope fa-beat-fade"></span>
-                    </button>
+              <div class="col-12 mt-5 d-flex flex-row align-items-center justify-content-center">
+                <form class="form-inline">
+                  <div class="form-group mb-2">
+                    <input id="email" type="text" value="" class="form-control mx-3" placeholder="이메일을 입력하세요...">
+                    <span id="mailBtn" onclick="sendMail()" style="color: aliceblue; cursor: pointer;"
+                      class=" fas fa-3x fa-envelope fa-beat-fade"></span>
                   </div>
                 </form>
               </div>
@@ -119,7 +115,7 @@
                 <h1 id="timer" style="display: none;"></h1>
               </div>
               <div class="col-12 mt-3 d-flex flex-column align-items-center justify-content-center">
-                <button type="button" class="btn btn-light text-center" data-dismiss="modal">X</button>
+                <button type="button" class="btn btn-light btn-lg text-center" data-dismiss="modal"> X </button>
               </div>
             </div>
           </div>
@@ -203,10 +199,9 @@
         $("#mailSuccessModal").modal('show')
         displayWindow.postMessage('requestCanvas', '*');
       }
-      else {
+      else
         $("#mailFailModal").modal('show');
-      }
-      $("#mailModal").modal('hide');
+      $("#noticeModal").modal('hide');
     }
 
     function terminateUserChromata() {
@@ -255,7 +250,6 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height); // 전체 캔버스에 배경색을 그림
         ctx.drawImage(imgData, 0, 0);
         dataURL = canvas.toDataURL('image/png');
-        console.log(dataURL)
         await axios({
           method: "post",
           url: "https://3oj4pwllli.execute-api.ap-northeast-2.amazonaws.com/v1/mail",
@@ -287,6 +281,7 @@
       }, 1000);
 
       setTimeout(() => {
+        $("#email").val('')
         $("#takePictureCountDown").hide();
         $("#takePictureCountDown").html('');
         $("#noticeModal").modal('show')
