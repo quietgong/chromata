@@ -22,6 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap" rel="stylesheet">
+  <link href="assets/css/popup.css" rel="stylesheet">
 </head>
 <style>
   input[type=range] {
@@ -60,6 +61,18 @@
     transform: translate(-50%, -50%);
     /* 원하는 다른 스타일을 추가할 수 있습니다. */
   }
+
+  .modal-content {
+    border: none;
+  }
+
+  .modal-header {
+    border: none;
+  }
+
+  .modal-footer {
+    border: none;
+  }
 </style>
 
 <body style="background-color: black;">
@@ -68,7 +81,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-body">
-          <h3>메일을 전송했습니다! 👍</h3>
+          <h3>메일을 전송했습니다!</h3>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
@@ -76,12 +89,13 @@
       </div>
     </div>
   </div>
+
   <!-- 메일 전송 실패 모달 -->
   <div class="modal fade" id="mailFailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-body">
-          <h3>잘못된 메일을 입력했습니다! 🥲</h3>
+          <h3>잘못된 메일을 입력했습니다!</h3>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
@@ -89,41 +103,29 @@
       </div>
     </div>
   </div>
+
   <!-- 촬영 후 안내 모달 -->
-  <div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" style="background-color: #5046FF;">
-      <div class="modal-content" style="background-color: #5046FF;">
-        <div class="modal-body">
-          <div class="col-lg-12 d-flex flex-column align-items-center">
-            <div class="row">
-              <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-                <h1><strong>촬영 완료!</strong></h1>
-              </div>
-              <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-                <h4>촬영된 사진의 크로마토그래피 애니메이션은 3분동안 출력됩니다.</h4>
-                <h4>순간의 이미지를 저장하고 싶다면 이메일 주소를 입력하세요.</h4>
-              </div>
-              <div class="col-12 mt-5 d-flex flex-row align-items-center justify-content-center">
-                <form class="form-inline">
-                  <div class="form-group mb-2">
-                    <input id="email" type="text" value="" class="form-control mx-3" placeholder="이메일을 입력하세요...">
-                    <span id="mailBtn" onclick="sendMail()" style="color: aliceblue; cursor: pointer;"
-                      class=" fas fa-3x fa-envelope fa-beat-fade"></span>
-                  </div>
-                </form>
-              </div>
-              <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-                <h1 id="timer" style="display: none;"></h1>
-              </div>
-              <div class="col-12 mt-3 d-flex flex-column align-items-center justify-content-center">
-                <button type="button" class="btn btn-light btn-lg text-center" data-dismiss="modal"> X </button>
-              </div>
-            </div>
+  <div class="modal modal-fullscreen-xl" id="noticeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content" style="background-color: rgba(80, 70, 255, 0.8); width: 2500px; height: 1370px; position: relative; margin-left: -1000px;">
+        <div class="inner-div flex-column align-items-center justify-content-center d-flex">
+          <p id="popupTitle"><strong>촬영 완료!</strong></p>
+          <br>
+          <br>
+          <p class="popupDesc">크로마토그래피 애니메이션의 순간을 간직하고 싶다면 이메일 주소를 입력하세요.</p>
+          <p class="popupDesc">3분이 지나면 크로마토그래피 애니메이션은 사라집니다.</p>
+          <div style="padding-top: 100px;">
+            <img id="popupImg" src="assets/img/3.png" class="img-fluid" style="width: 80px; height: 55px; padding-right: 20px; vertical-align: middle; margin-top: -5px;">
+            <input id="email" type="text" value="" class="form-control" placeholder="이메일을 입력하세요..." style="width: 500px; height: 50px; display: inline-block;">
+            <span id="mailBtn" onclick="sendMail()" style="color: aliceblue; cursor: pointer; vertical-align: middle; padding-left: 20px; margin-top: -5px;" class="fas fa-4x fa-envelope"></span>
           </div>
+          <p id="timer"></p>
+          <button type="button" id="popupClose" class="btn btn-light btn-lg text-center" data-dismiss="modal"> X </button>
         </div>
       </div>
     </div>
   </div>
+  <!-- 촬영 후 안내 모달 -->
 
   <!-- 로고 -->
   <div id="logo" class="container-fluid">
@@ -133,41 +135,73 @@
   <div class="container-fluid mt-5">
     <div class="row">
       <!-- 카메라 화면 -->
-      <div class="col-lg-8">
+      <div class="col-lg-8" style="margin-top: 100px;">
         <div class="embed-responsive embed-responsive-16by9">
           <video class="embed-responsive-item" autoplay="true" id="videoElement"></video>
           <canvas id="canvas" style="display:none;"></canvas>
-          <h1 id="takePictureCountDown"><strong></strong></h1>
+          <img id="takePictureCountDown">
         </div>
       </div>
       <!-- 애니메이션 옵션 설정 -->
       <div id="setting" class="col-lg-4 d-flex flex-column align-items-center">
-        <div class="row" style="margin-top: 100px;">
-          <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-            <h1><strong>애니메이션 설정</strong></h1>
+        <div class="row" style="margin-top: 70px;">
+          <div class="col-12 mt-4 d-flex align-items-center justify-content-center">
+            <div class="col-2">
+              <img src="assets/img/1.png" class="mx-auto d-block img-fluid">
+            </div>
+            <div class="col-10 align-items-center justify-content-center text-center">
+              <h1><strong>애니메이션 설정</strong></h1>
+              <h4>아래의 옵션을 조정한 뒤 사진을 찍어 보세요!</h4>
+            </div>
           </div>
-          <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
-            <h4>아래의 옵션을 조정한 뒤 사진을 찍어 보세요!</h4>
+          <div class="col-2">
+
           </div>
-          <div class="col-12 mt-4 d-flex flex-column align-items-center justify-content-center">
+          <div class="col-10 mt-4 d-flex flex-column align-items-center justify-content-center">
             <label for="lineWidth" class="form-label">선 굵기</label>
             <input id="lineWidth" class="form-range mb-2" type="range" min="1" max="5" step="1" value="2"
               onchange="lineWidthValue.value=value" />
             <output id="lineWidthValue">2</output>
           </div>
-          <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+          <div class="col-2">
+
+          </div>
+          <div class="col-10 mt-5 d-flex flex-column align-items-center justify-content-center">
             <label for="speed" class="form-label">스피드</label>
             <input id="speed" class="form-range mb-2" type="range" min="1" max="10" step="1" value="7"
               onchange="speedValue.value=value" />
             <output id="speedValue">7</output>
           </div>
-          <div class="col-12 mt-5 d-flex flex-column align-items-center justify-content-center">
+          <div class="col-2">
+
+          </div>
+          <div class="col-10 mt-5 d-flex flex-column align-items-center justify-content-center">
             <label for="backgroundColor" class="form-label">애니메이션 배경색</label>
             <input id="backgroundColor" class="form-control" type="color" value="#000000" />
           </div>
+
           <div class="col-12 mt-5">
-            <img src="assets/img/Btn_Camera.png" class="mx-auto d-block img-fluid"
-              style="cursor: pointer; width: 200px; height: 200px; margin-top: 100px;" onclick="takePicture()" />
+
+          </div>
+
+          <div class="col-12 mt-5 d-flex align-items-center justify-content-center">
+            <div class="col-2">
+              <img src="assets/img/2.png" class="mx-auto d-block img-fluid">
+            </div>
+            <div class="col-10 align-items-center justify-content-center text-center">
+              <h1><strong>사진 촬영</strong></h1>
+              <h4>사진을 촬영해 보세요.</h4>
+            </div>
+          </div>
+
+          <div class="col-12 d-flex align-items-center justify-content-center">
+            <div class="col-2">
+
+            </div>
+            <div class="col-10">
+              <img src="assets/img/Btn_Camera.png" class="mx-auto d-block img-fluid"
+              style="cursor: pointer; width: 185px; height: 185px; margin-top: 50px;" onclick="takePicture()" />
+            </div>
           </div>
         </div>
       </div>
@@ -193,6 +227,16 @@
           console.log(error.message);
         });
     }
+
+    function flipVideo() {
+      if (video) {
+        video.style.transform = 'scaleX(-1)';
+      }
+    }
+
+    video.addEventListener('loadedmetadata', function () {
+      flipVideo();
+    });
 
     function sendMail() {
       let email = $("#email").val()
@@ -273,20 +317,22 @@
 
     function takePicture() {
       remain = countDown;
-      $("#takePictureCountDown").show();
       let picCountDown = setInterval(() => {
-        if (remain < 0) {
+        $("#takePictureCountDown").show();
+        if (remain <= 0) {
           clearInterval(picCountDown);
         } else {
-          $("#takePictureCountDown").html(remain);
-          remain--;
+            let imgSrc = `assets/img/count/${remain}.png`;
+            $("#takePictureCountDown").attr("src", imgSrc);
+            $("#takePictureCountDown").attr("width", "500px");
+            $("#takePictureCountDown").attr("height", "500px");
+            remain--;
         }
       }, 1000);
 
       setTimeout(() => {
         $("#email").val('')
         $("#takePictureCountDown").hide();
-        $("#takePictureCountDown").html('');
         $("#noticeModal").modal('show')
         $("#mailBtn").show();
         showCountDown(); // 카메라 버튼 클릭 시 카운트다운 출력
@@ -297,6 +343,12 @@
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // 이미지를 좌우로 뒤집습니다
+        context.translate(video.videoWidth, 0);
+        context.scale(-1, 1);
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
         var pixels = context.getImageData(0, 0, canvas.width, canvas.height);
         gradient_internal(pixels, [1, 2, 1]); // Apply Sobel operator
         context.putImageData(pixels, 0, 0);
