@@ -14,18 +14,12 @@
     <img style="visibility: hidden;" id="user" src="" class="displayElem">
   </div>
   <div id="displayDiv" class="container" style="display: block;">
-    <img id="poster" class="displayElem" src="assets/img/poster.jpg">
     <img style="visibility: hidden;" id="bg1" class="displayElem" src="assets/img/fractal.jpg">
     <img style="visibility: hidden;" id="bg2" class="displayElem" src="assets/img/geometry.jpg">
     <img style="visibility: hidden;" id="bg3" class="displayElem" src="assets/img/sunset.jpg">
   </div>
 
   <script>
-    function switchDisplay() {
-      showDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
-      displayDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
-    }
-
     const showDiv = document.getElementById("showDiv");
     const displayDiv = document.getElementById("displayDiv");
     const userPic = document.getElementById("user");
@@ -38,8 +32,8 @@
     let captureCnt = 0;
     let userChromata;
     let displayChromata;
-    let displayArray = [poster, document.getElementById('bg1'), document.getElementById('bg2'), document.getElementById('bg3')];
-    let defaults = {
+    let displayArray = [document.getElementById('bg1'), document.getElementById('bg2'), document.getElementById('bg3')];
+    let defaultChromataOption = {
       colorMode: 'color',
       compositeOperation: 'lighten',
       iterationLimit: 0,
@@ -52,8 +46,8 @@
       speed: 7,
       turningAngle: Math.PI
     };
-    let displayOptionArray = [null, defaults, defaults, defaults]
-    let displayBackGroundColor = [null, "#000000", "#000000", "#000000"]
+    let displayOptionArray = [defaultChromataOption, defaultChromataOption, defaultChromataOption]
+    let displayBackGroundColor = ["#000000", "#000000", "#000000"]
     let displayChromataEndInterval;
     let currentBackGroundColor;
     let time = displayTime;
@@ -63,10 +57,14 @@
     showItem(currentIndex);
     showDisplay();
 
+    function switchDisplay() {
+      showDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
+      displayDiv.style.display = (showDiv.style.display === 'none') ? 'block' : 'none';
+    }
+
     function showDisplay() {
       displayChromataEndInterval = setInterval(() => {
-        if (currentIndex !== 0)
-          displayChromata.reset();
+        displayChromata.reset();
         showItem((currentIndex + 1) % displayArray.length);
       }, displayTime * 1000);
     }
@@ -76,11 +74,9 @@
         i === index ? elem.classList.add('active') : elem.classList.remove('active');
       });
       currentIndex = index;
-      if (currentIndex !== 0) {
-        displayDiv.style.backgroundColor = displayBackGroundColor[currentIndex]
-        displayChromata = new Chromata(displayArray[currentIndex], displayOptionArray[currentIndex]);
-        displayChromata.start();
-      }
+      displayDiv.style.backgroundColor = displayBackGroundColor[currentIndex]
+      displayChromata = new Chromata(displayArray[currentIndex], displayOptionArray[currentIndex]);
+      displayChromata.start();
     }
 
     window.addEventListener('message', function (event) {
@@ -94,15 +90,15 @@
         }, '*')
       }
       else {
-        let imgIdx = captureCnt % 3 + 1; // 1,2,3
+        let imgIdx = captureCnt % displayArray.length; // 0, 1, 2
         captureCnt++; // 적용되는 display 배열의 idx
-        // 이전 크로마타가 완전히 끝나지 않았다면
         if (!userChromataFinished) {
+          // 이전 크로마타가 완전히 끝나지 않았다면
           userChromata.reset(); // 이전 크로마타는 삭제
           clearTimeout(userChromataTimeOut) // 이전 크로마타의 종료 타이머 삭제
         }
-        // 이전 크로마타가 완전히 끝났었다면
         else {
+          // 이전 크로마타가 완전히 끝났었다면
           clearInterval(displayChromataEndInterval); // 화면보호기 전환 타이머 삭제
           switchDisplay(); // 화면 모드 스위칭
           if (currentIndex !== 0 || displayChromata)
@@ -114,7 +110,7 @@
         displayBackGroundColor[imgIdx] = event.data.backgroundColor;
         currentBackGroundColor = event.data.backgroundColor;
         showDiv.style.backgroundColor = currentBackGroundColor;
-        let userChromataOption = defaults;
+        let userChromataOption = defaultChromataOption;
         userChromataOption.lineWidth = event.data.lineWidth,
         userChromataOption.speed = event.data.speed,
         displayOptionArray[imgIdx] = userChromataOption

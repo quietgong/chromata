@@ -82,6 +82,8 @@
       <div class="modal-content">
         <div class="modal-body">
           <h3>메일을 전송했습니다!</h3>
+          <br><br>
+          <p style="font-style: italic;">메일이 도착하지 않았다면 스팸메일함을 확인해주세요</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
@@ -238,22 +240,27 @@
       flipVideo();
     });
 
+    function initMailInput(){
+      $("#email").val('')
+    }
+
     function sendMail() {
       let email = $("#email").val()
       let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
       if (regex.test(email)) {
         $("#mailSuccessModal").modal('show')
+        $("#mailSuccessModal").css("z-index", "1500");
         displayWindow.postMessage('requestCanvas', '*');
       }
       else
         $("#mailFailModal").modal('show');
-      $("#noticeModal").modal('hide');
+        $("#mailFailModal").css("z-index", "1500");
     }
 
     function terminateUserChromata() {
       clearInterval(userChromataTimer);
       $("#timer").hide();
-      $("#mailBtn").hide();
+      initMailInput();
     }
 
     function showCountDown() {
@@ -264,10 +271,12 @@
       userChromataTimer = setInterval(() => {
         if (time <= 0) {
           terminateUserChromata();
+          $("#noticeModal").modal('hide')
+          initMailInput();
         }
         else {
           time--;
-          $("#timer").html(getTimeStringSeconds(time) + "초 후 종료")
+          $("#timer").html(getTimeStringSeconds(time) + "초 후 종료됩니다.")
         }
       }, 1000);
     }
@@ -308,7 +317,7 @@
             'Content-Type': 'application/json', // 멀티파트 형식으로 전송
           }
         }).then(() => {
-          console.log("mail successfully sent")
+          console.log($("#email").val() + " Mail Sent")
         }).catch((err) => {
           console.log("Error : ", err.message);
         })
